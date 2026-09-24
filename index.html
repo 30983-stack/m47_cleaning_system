@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการเวรทำความสะอาด ม.4.7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF85A1;
+            --primary-hover: #FF6B8B;
+            --primary-light: #FFE8ED;
+            --secondary-color: #7A8B99;
+            --background-body: #FFF7F9;
+            --surface-white: #FFFFFF;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --warning-color: #FF9800;
+            --border-radius: 20px;
+            --border-radius-sm: 12px;
+            --shadow-sm: 0 4px 15px rgba(255, 133, 161, 0.1);
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--background-body);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 520px; padding: 20px; box-sizing: border-box; }
+        .card { background-color: var(--surface-white); border-radius: var(--border-radius); padding: 25px 20px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+        
+        .header-center { text-align: center; margin-bottom: 20px; }
+        .logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid var(--surface-white); box-shadow: var(--shadow-sm); margin-bottom: 12px; }
+        h2 { color: var(--primary-hover); font-size: 22px; font-weight: 700; margin: 0 0 5px 0; }
+        .subtitle { color: var(--text-muted); font-size: 13px; margin: 0; }
+
+        .input-group { margin-bottom: 15px; }
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%; padding: 14px; border: 2px solid #F0F0F0; border-radius: var(--border-radius-sm);
+            box-sizing: border-box; font-family: inherit; font-size: 15px; background-color: #FAFAFA;
+        }
+        input:focus { outline: none; border-color: var(--primary-color); background-color: #FFF; }
+
+        button {
+            width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 14px;
+            border-radius: var(--border-radius-sm); font-family: inherit; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(255, 133, 161, 0.3);
+        }
+        button:hover { background-color: var(--primary-hover); }
+        button:disabled { background-color: #E0E0E0; cursor: not-allowed; box-shadow: none; color: #999; }
+        .btn-approve { background-color: var(--success-color); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
+        .btn-approve:hover { background-color: #388E3C; }
+        .btn-logout { background-color: transparent; color: var(--secondary-color); box-shadow: none; border: 1px solid #E0E0E0; margin-top: 15px; }
+
+        .nav-tabs { display: flex; gap: 6px; background-color: var(--primary-light); padding: 6px; border-radius: var(--border-radius-sm); margin-bottom: 20px; overflow-x: auto; }
+        .nav-tabs button { background-color: transparent; color: var(--text-muted); box-shadow: none; padding: 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; flex: 1; }
+        .nav-tabs button.active { background-color: #FFF; color: var(--primary-hover); font-weight: 700; }
+
+        .profile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, var(--primary-light) 0%, #FFF 100%);
+            padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 20px; border: 1px solid #FDF0F3;
+        }
+        .role-badge { background-color: var(--primary-color); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+        .day-card { background: #FAFAFA; border: 1px solid #F0F0F0; border-radius: var(--border-radius-sm); padding: 15px; margin-bottom: 12px; }
+        .day-title { font-weight: 700; color: var(--primary-hover); border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .inspector-name { font-size: 12px; background: #FFF; padding: 3px 8px; border-radius: 10px; border: 1px solid #FFE8ED; }
+        .duty-list { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #444; }
+
+        .table-container { overflow-x: auto; border-radius: var(--border-radius-sm); border: 1px solid #F0F0F0; }
+        table { width: 100%; border-collapse: collapse; background-color: #FFF; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #F0F0F0; font-size: 13px; }
+        th { background-color: #FAFAFA; color: var(--text-muted); }
+
+        .camera-zone { border: 2px dashed #E0E0E0; background: #FAFAFA; border-radius: var(--border-radius-sm); padding: 20px; text-align: center; margin-bottom: 15px; cursor: pointer; }
+        .camera-zone input[type="file"] { display: none; }
+        #previewImage { width: 100%; max-height: 220px; object-fit: contain; border-radius: var(--border-radius-sm); margin-top: 10px; }
+
+        .attendance-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #F0F0F0; font-size: 13px; }
+        .status-toggle { display: flex; gap: 5px; }
+        
+        /* แก้ไขเพิ่มสีตัวอักษร (color: #333;) และป้องกันการตกบรรทัด */
+        .status-btn { padding: 5px 12px; font-size: 11px; border-radius: 6px; border: 1px solid #DDD; background: #FFF; color: #333; white-space: nowrap; cursor: pointer; width: auto; box-shadow: none; }
+        .status-btn.present.active { background: var(--success-color); color: #FFF; border-color: var(--success-color); }
+        .status-btn.absent.active { background: var(--danger-color); color: #FFF; border-color: var(--danger-color); }
+
+        .pending-card { border: 1px solid var(--warning-color); background: #FFFDF9; border-radius: var(--border-radius-sm); padding: 15px; margin-bottom: 15px; }
+
+        .loading-container { text-align: center; padding: 20px 0; }
+        .spinner { width: 36px; height: 36px; border: 4px solid var(--primary-light); border-top: 4px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+        .hidden { display: none !important; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- LOGIN PAGE -->
+    <div id="loginSection" class="card">
+        <div class="header-center">
+            <img src="images.jpg" alt="ตราสัญลักษณ์โรงเรียน" class="logo">
+            <h2>ระบบจัดการเวรทำความสะอาด</h2>
+            <p class="subtitle">นักเรียนชั้นมัธยมศึกษาปีที่ 4.7 โรงเรียนเตรียมอุดมศึกษาภาคเหนือ</p>
+        </div>
+        
+        <div id="loadingStatus" class="loading-container">
+            <div class="spinner"></div>
+            <p style="color: var(--primary-color); font-size: 13px;">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</p>
+        </div>
+        
+        <div id="loginForm" class="hidden">
+            <div class="input-group">
+                <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้งาน (Username)" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPass" placeholder="รหัสผ่าน (Password)">
+            </div>
+            <button onclick="login()">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="appSection" class="hidden">
+        
+        <div class="card">
+            <div class="profile-header">
+                <div>
+                    <h3 id="displayUserName" style="margin:0; font-size:16px; color:var(--primary-hover);">ชื่อ: -</h3>
+                    <p style="margin:2px 0 0 0; font-size:12px; color:var(--secondary-color);">มัธยมศึกษาปีที่ 4.7</p>
+                    <span id="displayUserRole" class="role-badge" style="margin-top:4px;">-</span>
+                </div>
+                <img src="images.jpg" alt="โลโก้" style="width: 40px; height: 40px; border-radius: 50%;">
+            </div>
+            
+            <nav class="nav-tabs" id="navTabs">
+                <button onclick="switchTab('tab-schedule')" id="btn-schedule" class="active">📅 ตารางเวร</button>
+                <button onclick="switchTab('tab-leaderboard')" id="btn-leaderboard">🏆 คะแนนนักเรียน</button>
+                <button onclick="switchTab('tab-report')" id="btn-report" class="hidden">📸 บันทึกเวร</button>
+                <button onclick="switchTab('tab-approve')" id="btn-approve" class="hidden">📋 อนุมัติรายงาน</button>
+                <button onclick="switchTab('tab-admin')" id="btn-admin" class="hidden">⚙️ แก้ไขคะแนน</button>
+            </nav>
+
+            <!-- 1. Schedule Page -->
+            <div id="tab-schedule" class="page-section">
+                <h4 style="margin:0 0 12px 0; font-size:15px;">📅 ตารางปฏิบัติหน้าที่ประจำวัน</h4>
+
+                <div class="day-card">
+                    <div class="day-title"><span>วันจันทร์</span><span class="inspector-name">👑 ผู้ตรวจเวร: ด.ช.กิตติพงศ์ วัฒนานนท์</span></div>
+                    <ol class="duty-list">
+                        <li>เด็กชายวรเมธ สุขเกษม</li><li>เด็กชายศุภณัฐ แสงทอง</li><li>เด็กชายอธิพัฒน์ คงมั่น</li><li>เด็กชายก้องภพ รัตนไพบูลย์</li><li>เด็กชายนนทกร ชูศักดิ์</li>
+                    </ol>
+                </div>
+
+                <div class="day-card">
+                    <div class="day-title"><span>วันอังคาร</span><span class="inspector-name">👑 ผู้ตรวจเวร: ด.ช.ณัฐวุฒิ ศรีสวัสดิ์</span></div>
+                    <ol class="duty-list">
+                        <li>เด็กหญิงกัญญาภัค วงศ์สกุล</li><li>เด็กหญิงชลธิชา พรหมรักษา</li><li>เด็กหญิงณิชาภา แก้วมณี</li><li>เด็กหญิงธัญชนก ศรีบุญเรือง</li><li>เด็กหญิงปภาวดี ทองคำ</li>
+                    </ol>
+                </div>
+
+                <div class="day-card">
+                    <div class="day-title"><span>วันพุธ</span><span class="inspector-name">👑 ผู้ตรวจเวร: ด.ช.ธนกฤต พูลเพิ่ม</span></div>
+                    <ol class="duty-list">
+                        <li>เด็กหญิงพิมพ์ชนก วัฒนชัย</li><li>เด็กหญิงรินรดา สุวรรณดี</li><li>เด็กหญิงศิริกานต์ มณีรัตน์</li><li>เด็กหญิงสุพิชชา คำแสน</li><li>เด็กหญิงอริสรา บุญญฤทธิ์</li>
+                    </ol>
+                </div>
+
+                <div class="day-card">
+                    <div class="day-title"><span>วันพฤหัสบดี</span><span class="inspector-name">👑 ผู้ตรวจเวร: ด.ช.พีรพัฒน์ อินทรรักษ์</span></div>
+                    <ol class="duty-list">
+                        <li>เด็กชายปวริศ นาคะวัฒน์</li><li>เด็กหญิงณัฐธิดา พิพัฒน์กุล</li><li>เด็กชายธีรภัทร สุนทรชัย</li><li>เด็กหญิงแพรวา บุญประเสริฐ</li><li>เด็กชายศุภกิตติ์ วงศ์เจริญ</li>
+                    </ol>
+                </div>
+
+                <div class="day-card">
+                    <div class="day-title"><span>วันศุกร์</span><span class="inspector-name">👑 ผู้ตรวจเวร: ด.ช.ภาคิน จันทร์ประเสริฐ</span></div>
+                    <ol class="duty-list">
+                        <li>เด็กชายวรเมธ สุขเกษม</li><li>เด็กชายศุภณัฐ แสงทอง</li><li>เด็กหญิงกัญญาภัค วงศ์สกุล</li><li>เด็กหญิงพิมพ์ชนก วัฒนชัย</li><li>เด็กชายปวริศ นาคะวัฒน์</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- 2. Report Duty Page (Leader Only - Shows every day) -->
+            <div id="tab-report" class="page-section hidden">
+                <h4 style="margin:0 0 12px 0; font-size:15px;">📸 ถ่ายภาพรายงานการตรวจเวร</h4>
+                
+                <label for="cameraInput" class="camera-zone" style="display: block;">
+                    <span style="font-size:28px; display:block; margin-bottom:5px;">📷</span>
+                    <span id="cameraText" style="font-size:12px; color:#666;">แตะเพื่อเปิดกล้อง หรือเลือกรูปภาพ</span>
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleImageUpload(event)">
+                </label>
+                <input type="hidden" id="photoBase64">
+                <img id="previewImage" class="hidden" alt="ภาพถ่ายเวร">
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0 10px 0;">
+                    <h4 style="margin:0; font-size:14px;">📋 เช็คชื่อเวรประจำวัน (+5 / -5)</h4>
+                    <span id="dutyDayTitle" style="font-size:12px; background:var(--primary-light); color:var(--primary-hover); padding:3px 8px; border-radius:10px; font-weight:bold;">-</span>
+                </div>
+                
+                <div style="border: 1px solid #E0E0E0; border-radius:8px; max-height:260px; overflow-y:auto; margin-bottom:15px;" id="attendanceContainer"></div>
+
+                <button onclick="submitReport()" id="btnSubmitReport">ส่งรายงานให้ครูอนุมัติ</button>
+            </div>
+
+            <!-- 3. Leaderboard Page -->
+            <div id="tab-leaderboard" class="page-section hidden">
+                <h4 style="margin:0 0 12px 0; font-size:15px;">🏆 คะแนนความประพฤติ (เฉพาะนักเรียน)</h4>
+                <div class="table-container" style="max-height: 420px; overflow-y: auto;">
+                    <table id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th width="45" style="text-align:center;">อันดับ</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th width="65" style="text-align:center;">คะแนน</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Teacher Approval Tab -->
+            <div id="tab-approve" class="page-section hidden">
+                <h4 style="margin:0 0 12px 0; font-size:15px;">📋 รายงานการตรวจเวรที่รออนุมัติ</h4>
+                <div id="pendingReportsContainer"></div>
+            </div>
+
+            <!-- 5. Admin Edit Tab -->
+            <div id="tab-admin" class="page-section hidden">
+                <h4 style="margin:0 0 8px 0; font-size:15px;">⚙️ แก้ไขคะแนนนักเรียน</h4>
+                <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">แก้ไขคะแนนของนักเรียนแต่ละคนได้โดยตรง</p>
+                <div class="table-container" style="max-height: 380px; overflow-y: auto;">
+                    <table id="adminTable">
+                        <thead>
+                            <tr>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th width="80" style="text-align:center;">คะแนน</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <button onclick="saveAdminScores()" id="btnSaveAdmin" style="margin-top: 15px;">💾 บันทึกคะแนนลง Google Sheets</button>
+            </div>
+
+            <button onclick="logout()" class="btn-logout">ออกจากระบบ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVv79V9TWuc020Cwf_uhi78yOD3kQkNKtB36Em7m3RqbgPjPs5mqylgu7NRJ8yotaWIw/exec';
+    
+    // ตารางจับคู่นักเรียน 5 คนประจำวัน
+    const dailyScheduleMap = {
+        1: { name: 'วันจันทร์', students: ['เด็กชายวรเมธ สุขเกษม', 'เด็กชายศุภณัฐ แสงทอง', 'เด็กชายอธิพัฒน์ คงมั่น', 'เด็กชายก้องภพ รัตนไพบูลย์', 'เด็กชายนนทกร ชูศักดิ์'] },
+        2: { name: 'วันอังคาร', students: ['เด็กหญิงกัญญาภัค วงศ์สกุล', 'เด็กหญิงชลธิชา พรหมรักษา', 'เด็กหญิงณิชาภา แก้วมณี', 'เด็กหญิงธัญชนก ศรีบุญเรือง', 'เด็กหญิงปภาวดี ทองคำ'] },
+        3: { name: 'วันพุธ', students: ['เด็กหญิงพิมพ์ชนก วัฒนชัย', 'เด็กหญิงรินรดา สุวรรณดี', 'เด็กหญิงศิริกานต์ มณีรัตน์', 'เด็กหญิงสุพิชชา คำแสน', 'เด็กหญิงอริสรา บุญญฤทธิ์'] },
+        4: { name: 'วันพฤหัสบดี', students: ['เด็กชายปวริศ นาคะวัฒน์', 'เด็กหญิงณัฐธิดา พิพัฒน์กุล', 'เด็กชายธีรภัทร สุนทรชัย', 'เด็กหญิงแพรวา บุญประเสริฐ', 'เด็กชายศุภกิตติ์ วงศ์เจริญ'] },
+        5: { name: 'วันศุกร์', students: ['เด็กชายวรเมธ สุขเกษม', 'เด็กชายศุภณัฐ แสงทอง', 'เด็กหญิงกัญญาภัค วงศ์สกุล', 'เด็กหญิงพิมพ์ชนก วัฒนชัย', 'เด็กชายปวริศ นาคะวัฒน์'] }
+    };
+
+    let usersData = [];
+    let pendingReportsData = [];
+    let currentUser = null;
+    let isApiConnected = false;
+    let attendanceState = {};
+
+    window.onload = async function() {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            if (data && data.users) {
+                usersData = data.users;
+                pendingReportsData = data.pendingReports || [];
+                isApiConnected = true;
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+        } finally {
+            document.getElementById('loadingStatus').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+    };
+
+    function login() {
+        const userIn = document.getElementById('loginUser').value.trim();
+        const passIn = document.getElementById('loginPass').value.trim();
+        const user = usersData.find(u => u.u === userIn && u.p === passIn);
+        
+        if (user) {
+            currentUser = user;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            
+            document.getElementById('displayUserName').innerText = user.n;
+            let roleTH = user.r === 'teacher' ? '👩‍🏫 ครูที่ปรึกษา' : user.r === 'leader' ? '👑 ผู้ตรวจเวร' : '🎓 นักเรียน';
+            document.getElementById('displayUserRole').innerText = roleTH;
+
+            document.getElementById('btn-report').classList.add('hidden');
+            document.getElementById('btn-approve').classList.add('hidden');
+            document.getElementById('btn-admin').classList.add('hidden');
+
+            // ผู้ตรวจเวรเห็นเมนูบันทึกเวรเสมอทุกวัน
+            if (user.r === 'leader') {
+                document.getElementById('btn-report').classList.remove('hidden');
+                renderAttendanceForm();
+            } else if (user.r === 'teacher') {
+                document.getElementById('btn-approve').classList.remove('hidden');
+                document.getElementById('btn-admin').classList.remove('hidden');
+                renderPendingReports();
+                renderAdminTable();
+            }
+            
+            renderLeaderboard();
+            switchTab('tab-schedule');
+        } else {
+            alert('❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง');
+        }
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        document.getElementById('appSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById(`btn-${tabId.split('-')[1]}`).classList.add('active');
+    }
+
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoBase64').value = e.target.result;
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewImage').classList.remove('hidden');
+                document.getElementById('cameraText').innerText = "✅ เลือกรูปภาพเรียบร้อยแล้ว";
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // ดึงเฉพาะนักเรียน 5 คนประจำวันมาลงฟอร์ม
+    function renderAttendanceForm() {
+        const container = document.getElementById('attendanceContainer');
+        container.innerHTML = '';
+        attendanceState = {};
+
+        const todayNum = new Date().getDay(); // 1=จันทร์, ..., 5=ศุกร์
+        const todayDuty = dailyScheduleMap[todayNum];
+
+        if (!todayDuty) {
+            document.getElementById('dutyDayTitle').innerText = 'วันหยุด';
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">วันนี้เป็นวันหยุด (เสาร์-อาทิตย์) ไม่มีเวรทำความสะอาด</p>';
+            return;
+        }
+
+        document.getElementById('dutyDayTitle').innerText = todayDuty.name;
+
+        // ค้นหานักเรียน 5 คนประจำวันใน usersData
+        const dutyStudents = usersData.filter(u => u.r === 'student' && todayDuty.students.includes(u.n));
+
+        if(dutyStudents.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">ไม่พบรายชื่อเวรประจำวัน</p>';
+            return;
+        }
+
+        dutyStudents.forEach(s => {
+            attendanceState[s.u] = 'present'; // Default ให้ทุกคน "มา"
+            container.innerHTML += `
+                <div class="attendance-row">
+                    <span><b>${s.n}</b></span>
+                    <div class="status-toggle">
+                        <button type="button" class="status-btn present active" onclick="toggleAttendance('${s.u}', 'present', this)">มา (+5)</button>
+                        <button type="button" class="status-btn absent" onclick="toggleAttendance('${s.u}', 'absent', this)">ขาด (-5)</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function toggleAttendance(username, status, btnElement) {
+        const parent = btnElement.parentElement;
+        parent.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        attendanceState[username] = status;
+    }
+
+    async function submitReport() {
+        const base64Img = document.getElementById('photoBase64').value;
+        if (!base64Img) { alert('⚠️ กรุณาถ่ายภาพหรือแนบรูปภาพก่อนส่งรายงาน'); return; }
+
+        const todayNum = new Date().getDay();
+        const todayDuty = dailyScheduleMap[todayNum];
+        if (!todayDuty) { alert('⚠️ วันนี้เป็นวันหยุด ไม่สามารถส่งรายงานเวรได้'); return; }
+
+        const btn = document.getElementById('btnSubmitReport');
+        btn.innerText = "⏳ กำลังส่งรายงาน...";
+        btn.disabled = true;
+
+        const dutyStudents = usersData.filter(u => u.r === 'student' && todayDuty.students.includes(u.n));
+        let presentUsernames = [];
+        let absentUsernames = [];
+
+        dutyStudents.forEach(s => {
+            const status = attendanceState[s.u] || 'present';
+            if (status === 'present') presentUsernames.push(s.u);
+            else absentUsernames.push(s.u);
+        });
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "appendReport",
+                    timestamp: new Date().toISOString(),
+                    reporter: currentUser.n,
+                    presentUsernames: presentUsernames,
+                    absentUsernames: absentUsernames,
+                    imageFileBase64: base64Img
+                })
+            });
+
+            alert(`✅ ส่งรายงานเวรประจำ${todayDuty.name}เรียบร้อยแล้ว!\nรายงานถูกส่งให้ครูที่ปรึกษาอนุมัติคะแนน (+5 / -5)`);
+            
+            document.getElementById('cameraInput').value = "";
+            document.getElementById('photoBase64').value = "";
+            document.getElementById('previewImage').classList.add('hidden');
+            switchTab('tab-schedule');
+
+        } catch (error) {
+            alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+        } finally {
+            btn.innerText = "ส่งรายงานให้ครูอนุมัติ";
+            btn.disabled = false;
+        }
+    }
+
+    function renderPendingReports() {
+        const container = document.getElementById('pendingReportsContainer');
+        container.innerHTML = '';
+
+        if (pendingReportsData.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">ไม่มีรายงานที่รออนุมัติในขณะนี้</p>';
+            return;
+        }
+
+        pendingReportsData.forEach(rep => {
+            const presentNames = usersData.filter(u => rep.presentUsernames.includes(u.u)).map(u => u.n).join(', ') || 'ไม่มี';
+            const absentNames = usersData.filter(u => rep.absentUsernames.includes(u.u)).map(u => u.n).join(', ') || 'ไม่มี';
+
+            container.innerHTML += `
+                <div class="pending-card">
+                    <p style="margin:0 0 5px 0; font-weight:bold; font-size:14px; color:var(--primary-hover);">ผู้ส่ง: ${rep.reporter}</p>
+                    <p style="margin:0 0 8px 0; font-size:11px; color:#666;">เวลา: ${rep.date}</p>
+                    ${rep.photoUrl ? `<img src="${rep.photoUrl}" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-bottom:8px;">` : ''}
+                    <div style="font-size:12px; margin-bottom:10px;">
+                        <p style="margin:3px 0; color:var(--success-color);"><b>✅ มาทำเวร (+5):</b> ${presentNames}</p>
+                        <p style="margin:3px 0; color:var(--danger-color);"><b>❌ ขาดเวร (-5):</b> ${absentNames}</p>
+                    </div>
+                    <button onclick="approveReport(${rep.rowIndex}, this)" class="btn-approve">✅ อนุมัติและตัด/เพิ่มคะแนน</button>
+                </div>
+            `;
+        });
+    }
+
+    async function approveReport(rowIndex, btnElem) {
+        btnElem.innerText = "⏳ กำลังอนุมัติ...";
+        btnElem.disabled = true;
+
+        const rep = pendingReportsData.find(r => r.rowIndex === rowIndex);
+        if (!rep) return;
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "approveReport",
+                    rowIndex: rowIndex,
+                    presentUsernames: rep.presentUsernames,
+                    absentUsernames: rep.absentUsernames
+                })
+            });
+
+            usersData.forEach(s => {
+                if (s.r === 'student') {
+                    if (rep.presentUsernames.includes(s.u)) s.s = (parseInt(s.s) || 100) + 5;
+                    else if (rep.absentUsernames.includes(s.u)) s.s = Math.max(0, (parseInt(s.s) || 100) - 5);
+                }
+            });
+
+            pendingReportsData = pendingReportsData.filter(r => r.rowIndex !== rowIndex);
+
+            alert("✅ อนุมัติรายงานและคำนวณคะแนนเรียบร้อยแล้ว!");
+            renderPendingReports();
+            renderLeaderboard();
+
+        } catch (error) {
+            alert("❌ เกิดข้อผิดพลาดในการอนุมัติ");
+            btnElem.innerText = "✅ อนุมัติและตัด/เพิ่มคะแนน";
+            btnElem.disabled = false;
+        }
+    }
+
+    function renderLeaderboard() {
+        const tbody = document.querySelector('#leaderboardTable tbody');
+        tbody.innerHTML = '';
+        
+        const studentsOnly = usersData.filter(u => u.r === 'student')
+                                      .sort((a, b) => (parseInt(b.s) || 0) - (parseInt(a.s) || 0));
+        
+        studentsOnly.forEach((s, index) => {
+            let score = s.s !== null && s.s !== undefined ? s.s : 100;
+            let scoreClass = score >= 80 ? 'color:var(--success-color);font-weight:bold;' : (score < 60 ? 'color:var(--danger-color);font-weight:bold;' : '');
+            let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:center;">${medal}</td>
+                    <td>${s.n}</td>
+                    <td style="text-align:center; ${scoreClass}">${score}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderAdminTable() {
+        const tbody = document.querySelector('#adminTable tbody');
+        tbody.innerHTML = '';
+        const studentsOnly = usersData.filter(u => u.r === 'student');
+        
+        studentsOnly.forEach(s => {
+            let score = s.s !== null && s.s !== undefined ? s.s : 100;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${s.n}</td>
+                    <td style="text-align:center;">
+                        <input type="number" id="edit_score_${s.u}" value="${score}" style="width:60px; text-align:center; padding:4px;">
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function saveAdminScores() {
+        const btn = document.getElementById('btnSaveAdmin');
+        btn.innerText = "⏳ กำลังบันทึก...";
+        btn.disabled = true;
+
+        const studentsOnly = usersData.filter(u => u.r === 'student');
+        let updates = [];
+        
+        studentsOnly.forEach(s => {
+            const inputVal = parseInt(document.getElementById(`edit_score_${s.u}`).value) || 0;
+            s.s = inputVal;
+            updates.push({ u: s.u, s: inputVal });
+        });
+        
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "updateScores", updates: updates })
+            });
+            alert("💾 บันทึกคะแนนใหม่ลง Google Sheets เรียบร้อยแล้ว");
+            renderLeaderboard();
+        } catch (error) {
+            alert("❌ เกิดข้อผิดพลาด");
+        } finally {
+            btn.innerText = "💾 บันทึกคะแนนลง Google Sheets";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
